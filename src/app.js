@@ -17,6 +17,8 @@ const emailsRoutes        = require('./modules/emails/emails.routes');
 
 const app = express();
 
+console.log('FRONTEND_URL =', env.FRONTEND_URL);
+
 app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
