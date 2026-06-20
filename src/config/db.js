@@ -6,25 +6,13 @@ const env = require('./env');
  * Reutiliza conexiones para evitar el costo de abrir/cerrar
  * una conexion por cada query.
  */
-const pool = process.env.DATABASE_URL
-  ? new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  })
-  : new Pool({
-    host: env.DB_HOST,
-    port: env.DB_PORT,
-    database: env.DB_NAME,
-    user: env.DB_USER,
-    password: env.DB_PASSWORD,
-    ssl: env.DB_SSL ? { rejectUnauthorized: false } : false,
-    max: 10,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000
-  });
-
+const pool = new Pool({
+  connectionString: env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000
+});
 /**
  * Helper para ejecutar queries.
  * @param {string} text - Query SQL con placeholders ($1, $2, ...)
