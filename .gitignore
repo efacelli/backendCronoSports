@@ -1,0 +1,5 @@
+node_modules/
+.env
+uploads/comprobantes/*
+!uploads/comprobantes/.gitkeep
+npm-debug.log
