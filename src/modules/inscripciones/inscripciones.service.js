@@ -121,21 +121,33 @@ async function obtenerPorId(id) {
   return insc;
 }
 
-async function subirComprobante(id, file) {
-  if (!file) {
+async function subirComprobante(id, comprobanteFile, certMedicoFile = null) {
+  if (!comprobanteFile) {
     const e = new Error('Debe adjuntar un comprobante'); e.statusCode = 400; throw e;
   }
   const insc = await inscripcionesRepository.findById(id);
   if (!insc) {
-    fs.unlink(file.path, () => {});
+    if (comprobanteFile) fs.unlink(comprobanteFile.path, () => {});
+    if (certMedicoFile)  fs.unlink(certMedicoFile.path,  () => {});
     const e = new Error('Inscripción no encontrada'); e.statusCode = 404; throw e;
   }
-  const rutaRelativa = path.join('comprobantes', file.filename).replace(/\\/g, '/');
+
+  const rutaComprobante = path.join('comprobantes', comprobanteFile.filename).replace(/\\/g, '/');
   if (insc.comprobante) {
     const ant = path.join(__dirname, '..', '..', '..', 'uploads', insc.comprobante);
     fs.unlink(ant, () => {});
   }
-  return inscripcionesRepository.actualizarComprobante(id, rutaRelativa);
+
+  let rutaCertMedico = null;
+  if (certMedicoFile) {
+    rutaCertMedico = path.join('comprobantes', certMedicoFile.filename).replace(/\\/g, '/');
+    if (insc.cert_medico) {
+      const ant = path.join(__dirname, '..', '..', '..', 'uploads', insc.cert_medico);
+      fs.unlink(ant, () => {});
+    }
+  }
+
+  return inscripcionesRepository.actualizarComprobante(id, rutaComprobante, rutaCertMedico);
 }
 
 async function actualizarEstadoPago(id, estado) {

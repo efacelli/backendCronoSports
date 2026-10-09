@@ -69,7 +69,11 @@ async function obtener(req, res, next) {
  */
 async function subirComprobante(req, res, next) {
   try {
-    const actualizado = await inscripcionesService.subirComprobante(req.params.id, req.file);
+    const comprobanteFile = req.files?.comprobante?.[0] || null;
+    const certMedicoFile  = req.files?.cert_medico?.[0]  || null;
+    const actualizado = await inscripcionesService.subirComprobante(
+      req.params.id, comprobanteFile, certMedicoFile
+    );
 
     return res.status(200).json({
       success: true,

@@ -99,11 +99,15 @@ async function create(data) {
   return result.rows[0];
 }
 
-async function actualizarComprobante(id, comprobante) {
+async function actualizarComprobante(id, comprobante, certMedico = null) {
   const result = await db.query(
-    `UPDATE inscripciones SET comprobante = $1, estado_pago = 'Pendiente'
-     WHERE id = $2 RETURNING id, comprobante, estado_pago`,
-    [comprobante, id]
+    `UPDATE inscripciones
+     SET comprobante  = $1,
+         cert_medico  = COALESCE($2, cert_medico),
+         estado_pago  = 'Pendiente'
+     WHERE id = $3
+     RETURNING id, comprobante, cert_medico, estado_pago`,
+    [comprobante, certMedico, id]
   );
   return result.rows[0] || null;
 }

@@ -10,7 +10,14 @@ const router = express.Router();
 router.post('/', inscripcionesController.registrar);
 
 // Ruta publica - subida de comprobante (multipart/form-data, campo "comprobante")
-router.post('/:id/comprobante', upload.single('comprobante'), inscripcionesController.subirComprobante);
+router.post(
+  '/:id/comprobante',
+  upload.fields([
+    { name: 'comprobante', maxCount: 1 },
+    { name: 'cert_medico', maxCount: 1 }
+  ]),
+  inscripcionesController.subirComprobante
+);
 
 // Rutas protegidas [admin]
 router.get(
