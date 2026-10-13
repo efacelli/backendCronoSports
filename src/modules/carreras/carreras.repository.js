@@ -11,7 +11,7 @@ const ESTADOS_ACTIVOS = `('activa','cerrada','finalizada')`;
 
 async function findAll(filtros = {}) {
   const conds = [];
-  const vals  = [];
+  const vals = [];
 
   // Por defecto excluye eliminadas y archivadas del listado público
   if (filtros.incluirEliminadas) {
@@ -23,7 +23,7 @@ async function findAll(filtros = {}) {
   }
 
   if (filtros.estado) { vals.push(filtros.estado); conds.push(`estado = $${vals.length}`); }
-  if (filtros.tipo)   { vals.push(filtros.tipo);   conds.push(`tipo   = $${vals.length}`); }
+  if (filtros.tipo) { vals.push(filtros.tipo); conds.push(`tipo   = $${vals.length}`); }
 
   const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
   const result = await db.query(
@@ -59,7 +59,8 @@ async function create(data) {
   const result = await db.query(
     `INSERT INTO carreras
        (nombre, tipo, fecha_evento, ubicacion, descripcion, cupo_maximo, precio_base,
-        estado, imagen_portada_url, alias, cbu, whatsapp, url_mapa, imagen_recorrido_url)
+        estado, imagen_portada_url, alias, cbu, whatsapp, url_mapa, imagen_recorrido_url, 'campo_talle','campo_club','campo_tel_emergencia','campo_obra_social',
+        'campo_grupo_sanguineo','campo_examen_medico','campo_cert_medico','campo_link_ironman')
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
      RETURNING ${CAMPOS_SELECT}`,
     [
@@ -76,9 +77,9 @@ async function create(data) {
 
 async function update(id, data) {
   const permitidos = [
-    'nombre','tipo','fecha_evento','ubicacion','descripcion',
-    'cupo_maximo','precio_base','estado','imagen_portada_url',
-    'alias','cbu','whatsapp','url_mapa','imagen_recorrido_url'
+    'nombre', 'tipo', 'fecha_evento', 'ubicacion', 'descripcion',
+    'cupo_maximo', 'precio_base', 'estado', 'imagen_portada_url',
+    'alias', 'cbu', 'whatsapp', 'url_mapa', 'imagen_recorrido_url'
   ];
   const campos = []; const vals = []; let idx = 1;
   for (const campo of permitidos) {
