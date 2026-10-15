@@ -77,10 +77,13 @@ async function create(data) {
 
 async function update(id, data) {
   const permitidos = [
-    'nombre', 'tipo', 'fecha_evento', 'ubicacion', 'descripcion',
-    'cupo_maximo', 'precio_base', 'estado', 'imagen_portada_url',
-    'alias', 'cbu', 'whatsapp', 'url_mapa', 'imagen_recorrido_url'
-  ];
+  'nombre','tipo','fecha_evento','ubicacion','descripcion',
+  'cupo_maximo','precio_base','estado','imagen_portada_url',
+  'alias','cbu','whatsapp','url_mapa','imagen_recorrido_url',
+  'campo_talle','campo_club','campo_tel_emergencia','campo_obra_social',
+  'campo_grupo_sanguineo','campo_examen_medico','campo_cert_medico',
+  'campo_link_ironman'
+];
   const campos = []; const vals = []; let idx = 1;
   for (const campo of permitidos) {
     if (data[campo] !== undefined) { campos.push(`${campo} = $${idx}`); vals.push(data[campo]); idx++; }
