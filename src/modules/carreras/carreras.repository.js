@@ -59,9 +59,10 @@ async function create(data) {
   const result = await db.query(
     `INSERT INTO carreras
        (nombre, tipo, fecha_evento, ubicacion, descripcion, cupo_maximo, precio_base,
-        estado, imagen_portada_url, alias, cbu, whatsapp, url_mapa, imagen_recorrido_url, 'campo_talle','campo_club','campo_tel_emergencia','campo_obra_social',
-        'campo_grupo_sanguineo','campo_examen_medico','campo_cert_medico','campo_link_ironman')
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+        estado, imagen_portada_url, alias, cbu, whatsapp, url_mapa, imagen_recorrido_url,
+        campo_talle, campo_club, campo_tel_emergencia, campo_obra_social,
+        campo_grupo_sanguineo, campo_examen_medico, campo_cert_medico, campo_link_ironman)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
      RETURNING ${CAMPOS_SELECT}`,
     [
       nombre, tipo, fecha_evento,
@@ -69,7 +70,15 @@ async function create(data) {
       cupo_maximo || 0, precio_base || 0,
       estado || 'activa', imagen_portada_url || null,
       alias || null, cbu || null, whatsapp || null,
-      url_mapa || null, imagen_recorrido_url || null
+      url_mapa || null, imagen_recorrido_url || null,
+      data.campo_talle || false,
+      data.campo_club || false,
+      data.campo_tel_emergencia || false,
+      data.campo_obra_social || false,
+      data.campo_grupo_sanguineo || false,
+      data.campo_examen_medico || false,
+      data.campo_cert_medico || false,
+      data.campo_link_ironman || false
     ]
   );
   return result.rows[0];
