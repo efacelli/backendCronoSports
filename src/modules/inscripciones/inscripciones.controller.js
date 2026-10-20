@@ -70,7 +70,7 @@ async function obtener(req, res, next) {
 async function subirComprobante(req, res, next) {
   try {
     const comprobanteFile = req.files?.comprobante?.[0] || null;
-    const certMedicoFile  = req.files?.cert_medico?.[0]  || null;
+    const certMedicoFile = req.files?.cert_medico?.[0] || null;
     const actualizado = await inscripcionesService.subirComprobante(
       req.params.id, comprobanteFile, certMedicoFile
     );
@@ -120,10 +120,45 @@ async function descargarComprobante(req, res, next) {
   }
 }
 
+async function descargarCertMedico(req, res, next) {
+  try {
+    const inscripcion = await inscripcionesService.obtenerPorId(req.params.id);
+
+    if (!inscripcion.cert_medico) {
+      return res.status(404).json({
+        success: false,
+        message: 'Esta inscripción no tiene certificado médico cargado'
+      });
+    }
+
+    const fs = require('fs');
+    const rutaArchivo = path.join(UPLOAD_DIR, path.basename(inscripcion.cert_medico));
+
+    if (!fs.existsSync(rutaArchivo)) {
+      return res.status(404).json({
+        success: false,
+        message: 'El archivo no existe en el servidor'
+      });
+    }
+
+    return res.sendFile(rutaArchivo, (err) => {
+      if (err && !res.headersSent) next(err);
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   registrar,
   listar,
   obtener,
   subirComprobante,
-  descargarComprobante
+  descargarComprobante, 
+  registrar, 
+  listar, 
+  obtener,
+  subirComprobante, 
+  descargarComprobante, 
+  descargarCertMedico
 };

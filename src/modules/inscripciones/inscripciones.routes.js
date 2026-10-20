@@ -41,4 +41,11 @@ router.get(
   inscripcionesController.descargarComprobante
 );
 
+router.get(
+  '/:id/cert-medico',
+  authMiddleware,
+  roleMiddleware('super_admin', 'organizador'),
+  inscripcionesController.descargarCertMedico
+);
+
 module.exports = router;
