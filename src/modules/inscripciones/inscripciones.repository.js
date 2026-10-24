@@ -98,7 +98,7 @@ async function create(data) {
   );
   return result.rows[0];
 }
-
+//...
 async function actualizarComprobante(id, comprobante, certMedico = null) {
   const result = await db.query(
     `UPDATE inscripciones
