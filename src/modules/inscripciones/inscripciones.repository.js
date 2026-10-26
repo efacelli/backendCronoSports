@@ -47,7 +47,9 @@ async function findById(id) {
         i.dni, i.fecha_nacimiento, i.sexo,
         i.email, i.telefono, i.ciudad,
         i.edad, i.categoria,
-        i.comprobante, i.estado_pago, i.observaciones, i.fecha_inscripcion,
+        i.comprobante, i.estado_pago, i.fecha_inscripcion,
+        i.observaciones, i.talle, i.club, i.tel_emergencia, i.obra_social,
+        i.grupo_sanguineo, i.fecha_examen_medico, i.cert_medico, i.link_ironman,
         c.nombre AS carrera_nombre, c.tipo AS carrera_tipo, c.fecha_evento, c.precio_base,
         m.nombre AS modalidad_nombre, m.distancia AS modalidad_distancia, m.precio_extra
      FROM inscripciones i

@@ -1,27 +1,27 @@
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 const inscripcionesRepository = require('./inscripciones.repository');
-const carrerasRepository      = require('../carreras/carreras.repository');
-const modalidadesRepository   = require('../modalidades/modalidades.repository');
-const calcularEdad             = require('../../utils/calcularEdad');
-const calcularCategoria        = require('../../utils/calcularCategoria');
+const carrerasRepository = require('../carreras/carreras.repository');
+const modalidadesRepository = require('../modalidades/modalidades.repository');
+const calcularEdad = require('../../utils/calcularEdad');
+const calcularCategoria = require('../../utils/calcularCategoria');
 const { notificarInscripcion } = require('../emails/emails.service');
 
-const SEXOS_VALIDOS   = ['masculino', 'femenino', 'otro'];
+const SEXOS_VALIDOS = ['masculino', 'femenino', 'otro'];
 const ESTADOS_VALIDOS = ['Pendiente', 'Aprobado', 'Rechazado'];
 
 function validarDatos(data) {
   const errores = [];
-  if (!data.id_carrera)        errores.push('"id_carrera" es obligatorio');
-  if (!data.apellido?.trim())  errores.push('"apellido" es obligatorio');
-  if (!data.nombre?.trim())    errores.push('"nombre" es obligatorio');
-  if (!data.dni?.trim())       errores.push('"dni" es obligatorio');
+  if (!data.id_carrera) errores.push('"id_carrera" es obligatorio');
+  if (!data.apellido?.trim()) errores.push('"apellido" es obligatorio');
+  if (!data.nombre?.trim()) errores.push('"nombre" es obligatorio');
+  if (!data.dni?.trim()) errores.push('"dni" es obligatorio');
   else if (!/^[0-9A-Za-z.-]{5,20}$/.test(data.dni.trim()))
     errores.push('Formato de DNI inválido');
-  if (!data.fecha_nacimiento)  errores.push('"fecha_nacimiento" es obligatorio');
+  if (!data.fecha_nacimiento) errores.push('"fecha_nacimiento" es obligatorio');
   else if (new Date(data.fecha_nacimiento) > new Date())
     errores.push('La fecha de nacimiento no puede ser futura');
-  if (!data.sexo)              errores.push('"sexo" es obligatorio');
+  if (!data.sexo) errores.push('"sexo" es obligatorio');
   if (data.sexo && !SEXOS_VALIDOS.includes(data.sexo))
     errores.push(`"sexo" debe ser: ${SEXOS_VALIDOS.join(', ')}`);
   if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
@@ -55,7 +55,7 @@ async function registrar(data) {
     e.statusCode = 409; throw e;
   }
 
-  const edad       = calcularEdad(data.fecha_nacimiento);
+  const edad = calcularEdad(data.fecha_nacimiento);
   const modalidades = await modalidadesRepository.findByCarrera(data.id_carrera);
 
   let modalidadAsignada;
@@ -77,22 +77,29 @@ async function registrar(data) {
   }
 
   const nueva = await inscripcionesRepository.create({
-    id_carrera:      data.id_carrera,
-    id_modalidad:    modalidadAsignada.id,
-    apellido:        data.apellido.trim(),
-    nombre:          data.nombre.trim(),
+    id_carrera: data.id_carrera,
+    id_modalidad: modalidadAsignada.id,
+    apellido: data.apellido.trim(),
+    nombre: data.nombre.trim(),
     nombre_completo: `${data.apellido.trim()}, ${data.nombre.trim()}`,
-    dni:             data.dni.trim(),
+    dni: data.dni.trim(),
     fecha_nacimiento: data.fecha_nacimiento,
-    sexo:            data.sexo,
-    email:           data.email?.trim() || null,
-    telefono:        data.telefono?.trim() || null,
-    ciudad:          data.ciudad?.trim() || null,
-    observaciones:   data.observaciones?.trim() || null,
+    sexo: data.sexo,
+    email: data.email?.trim() || null,
+    telefono: data.telefono?.trim() || null,
+    ciudad: data.ciudad?.trim() || null,
+    observaciones: data.observaciones?.trim() || null,
+    talle: data.talle?.trim() || null,
+    club: data.club?.trim() || null,
+    tel_emergencia: data.tel_emergencia?.trim() || null,
+    obra_social: data.obra_social?.trim() || null,
+    grupo_sanguineo: data.grupo_sanguineo?.trim() || null,
+    fecha_examen_medico: data.fecha_examen_medico || null,
+    link_ironman: data.link_ironman?.trim() || null,
     edad,
-    categoria:       modalidadAsignada.nombre,
-    comprobante:     null,
-    estado_pago:     'Pendiente'
+    categoria: modalidadAsignada.nombre,
+    comprobante: null,
+    estado_pago: 'Pendiente'
   });
 
   // Enviar email de confirmación (no bloquea ni tira error si falla)
@@ -100,7 +107,7 @@ async function registrar(data) {
     setImmediate(() =>
       notificarInscripcion({
         ...nueva,
-        carrera_nombre:   carrera.nombre,
+        carrera_nombre: carrera.nombre,
         modalidad_nombre: modalidadAsignada.nombre
       })
     );
@@ -127,15 +134,15 @@ async function subirComprobante(id, comprobanteFile, certMedicoFile = null) {
   }
   const insc = await inscripcionesRepository.findById(id);
   if (!insc) {
-    if (comprobanteFile) fs.unlink(comprobanteFile.path, () => {});
-    if (certMedicoFile)  fs.unlink(certMedicoFile.path,  () => {});
+    if (comprobanteFile) fs.unlink(comprobanteFile.path, () => { });
+    if (certMedicoFile) fs.unlink(certMedicoFile.path, () => { });
     const e = new Error('Inscripción no encontrada'); e.statusCode = 404; throw e;
   }
 
   const rutaComprobante = path.join('comprobantes', comprobanteFile.filename).replace(/\\/g, '/');
   if (insc.comprobante) {
     const ant = path.join(__dirname, '..', '..', '..', 'uploads', insc.comprobante);
-    fs.unlink(ant, () => {});
+    fs.unlink(ant, () => { });
   }
 
   let rutaCertMedico = null;
@@ -143,7 +150,7 @@ async function subirComprobante(id, comprobanteFile, certMedicoFile = null) {
     rutaCertMedico = path.join('comprobantes', certMedicoFile.filename).replace(/\\/g, '/');
     if (insc.cert_medico) {
       const ant = path.join(__dirname, '..', '..', '..', 'uploads', insc.cert_medico);
-      fs.unlink(ant, () => {});
+      fs.unlink(ant, () => { });
     }
   }
 
