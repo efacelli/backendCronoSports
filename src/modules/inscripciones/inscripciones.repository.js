@@ -26,7 +26,11 @@ async function findAll(filtros = {}) {
         i.dni, i.fecha_nacimiento, i.sexo,
         i.email, i.telefono, i.ciudad,
         i.edad, i.categoria,
-        i.comprobante, i.estado_pago, i.observaciones, i.fecha_inscripcion,
+        i.comprobante, i.estado_pago, i.fecha_inscripcion,
+        i.observaciones, i.talle, i.club, i.tel_emergencia, i.obra_social,
+        i.grupo_sanguineo, i.fecha_examen_medico, i.cert_medico, i.link_ironman,
+        i.email_inscripcion_enviado, i.email_inscripcion_fecha,
+        i.email_aprobacion_enviado, i.email_aprobacion_fecha,
         c.nombre AS carrera_nombre, c.tipo AS carrera_tipo, c.fecha_evento,
         m.nombre AS modalidad_nombre, m.distancia AS modalidad_distancia
      FROM inscripciones i
@@ -50,7 +54,10 @@ async function findById(id) {
         i.comprobante, i.estado_pago, i.fecha_inscripcion,
         i.observaciones, i.talle, i.club, i.tel_emergencia, i.obra_social,
         i.grupo_sanguineo, i.fecha_examen_medico, i.cert_medico, i.link_ironman,
-        c.nombre AS carrera_nombre, c.tipo AS carrera_tipo, c.fecha_evento, c.precio_base,
+        i.email_inscripcion_enviado, i.email_inscripcion_fecha,
+        i.email_aprobacion_enviado, i.email_aprobacion_fecha,
+        c.nombre AS carrera_nombre, c.tipo AS carrera_tipo, c.fecha_evento,
+        c.ubicacion, c.precio_base,
         m.nombre AS modalidad_nombre, m.distancia AS modalidad_distancia, m.precio_extra
      FROM inscripciones i
      JOIN carreras c ON c.id = i.id_carrera
@@ -60,7 +67,6 @@ async function findById(id) {
   );
   return result.rows[0] || null;
 }
-
 async function existeInscripcion(dni, idCarrera) {
   const result = await db.query(
     'SELECT id FROM inscripciones WHERE dni = $1 AND id_carrera = $2',
@@ -82,11 +88,15 @@ async function create(data) {
     `INSERT INTO inscripciones
        (id_carrera, id_modalidad, apellido, nombre, nombre_completo,
         dni, fecha_nacimiento, sexo, email, telefono, ciudad,
-        edad, categoria, comprobante, estado_pago, observaciones)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+        edad, categoria, comprobante, estado_pago, observaciones,
+        talle, club, tel_emergencia, obra_social, grupo_sanguineo,
+        fecha_examen_medico, cert_medico, link_ironman)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
      RETURNING id, id_carrera, id_modalidad, apellido, nombre, nombre_completo,
                dni, fecha_nacimiento, sexo, email, telefono, ciudad,
-               edad, categoria, comprobante, estado_pago, fecha_inscripcion`,
+               edad, categoria, comprobante, estado_pago, observaciones,
+               talle, club, tel_emergencia, obra_social, grupo_sanguineo,
+               fecha_examen_medico, cert_medico, link_ironman, fecha_inscripcion`,
     [
       id_carrera, id_modalidad,
       apellido || null, nombre || null,
@@ -95,7 +105,15 @@ async function create(data) {
       email || null, telefono || null, ciudad || null,
       edad, categoria,
       comprobante || null, estado_pago || 'Pendiente',
-      data.observaciones || null
+      data.observaciones || null,
+      data.talle || null,
+      data.club || null,
+      data.tel_emergencia || null,
+      data.obra_social || null,
+      data.grupo_sanguineo || null,
+      data.fecha_examen_medico || null,
+      data.cert_medico || null,
+      data.link_ironman || null
     ]
   );
   return result.rows[0];
